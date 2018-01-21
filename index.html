@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>MJPG-streamer Button</title>
+<meta charset="utf-8">
+<meta name="description" content="MJPG-streamer カメラをブラウザから起動／終了させる デモ">
+<meta name="author" content="Home Made Garbage">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="">
+<!--[if lt IE 9]>
+<script src="//cdn.jsdelivr.net/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<link rel="shortcut icon" href="">
+</head>
+<body>
+<style>
+.rotate{
+        transform: rotateX( 180deg );
+}
+
+.btn{
+    display: inline-block;
+    text-decoration: none;
+    background: #ff8181;
+    color: #FFF;
+    width: 120px;
+    height: 120px;
+    line-height: 120px;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: bold;
+    vertical-align: middle;
+    overflow: hidden;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.29);
+    border-bottom: solid 3px #bd6565;
+    transition: .4s;
+}
+
+.btn:active{
+    -ms-transform: translateY(2px);
+    -webkit-transform: translateY(2px);
+    transform: translateY(2px);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+    border-bottom: none;
+}
+
+.square_btn{
+    display: inline-block;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    background: #668ad8;/*ボタン色*/
+    color: #FFF;
+    border-bottom: solid 4px #627295;
+    border-radius: 3px;
+}
+.square_btn:active {/*ボタンを押したとき*/
+    -ms-transform: translateY(4px);
+    -webkit-transform: translateY(4px);
+    transform: translateY(4px);/*下に動く*/
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);/*影を小さく*/
+    border-bottom: none;
+}
+
+</style>
+ 
+<a class="btn" id="cameraOpen">Streaming ON</a>
+<p class="btn" id="cameraClose">Streaming OFF</p>
+
+<p class = "rotate">
+        <img src="http://192.168.24.14:8080/?action=stream">
+</p>
+
+<button class="square_btn" id="python_on">Surveillance Camera ON</button>
+<button class="square_btn" id="python_off">Surveillance Camera OFF</button>
+<br><br><br>
+<a href="http://192.168.24.14/my-page/Movie_Data" class="btn">Movie List</a>
+<button class= "square_btn" id="test">TEST</button>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+  function postMjpgStreamer(action) {
+  var url = 'mjpg-streamer.php?action=' + action; // リクエスト先URL
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState != 4) {
+      // リクエスト中
+      } else if (xhr.status != 200) {
+      // 失敗
+        alert('失敗しました。もう一回試してみてね！');
+      } else {
+      // 取得成功
+        if (action == "start"){
+	  alert("Streaming Start!!");
+        }else{
+	  alert("Streaming OFF.");
+	}
+        window.location.reload() ;
+      }
+    };
+    xhr.send(null);
+  }
+
+  function postPython(action2) {
+    var url2 = 'python.php?action=' + action2; // リクエスト先URL
+    var xhr2 = new XMLHttpRequest();
+    xhr2.open('GET', url2);
+    xhr2.onreadystatechange = function () {
+      if (xhr2.readyState != 4) {
+      // リクエスト中
+      } else if (xhr2.status != 200) {
+      // 失敗
+        alert('失敗しました。もう一回試してみてね！');
+      } else {
+      // 取得成功
+      if(action2 == "gpio -g write 21 1"){
+	alert("Surveillance Camera ON!!");
+      }else{
+	alert("Surveillance Camera OFF.");
+      }
+        window.location.reload() ;
+      }
+    };
+    xhr2.send(null);
+  }
+
+  function test(action3) {
+    var url = 'test.php?action=' + action3; // リクエスト先URL
+    var xhr3 = new XMLHttpRequest();
+    xhr3.open('GET', url);
+    xhr3.onreadystatechange = function () {
+      if (xhr3.readyState != 4) {	
+	      // リクエスト中
+      } else if (xhr3.status != 200) {
+	            // 失敗
+        alert('失敗しました。もう一回試してみてね！');
+      } else {
+     	      // 取得成功
+        alert(xhr3.response);
+        window.location.reload() ;
+      }
+    };
+    xhr3.send(null);
+   }
+
+
+  document.getElementById('cameraOpen').addEventListener('click' ,function() {
+    postMjpgStreamer('start');
+  }
+  ,false);
+ 
+  document.getElementById('cameraClose').addEventListener('click' ,function() {
+    postMjpgStreamer('stop');
+  }
+  ,false);
+
+  document.getElementById('python_on').addEventListener('click' ,function() {
+    postPython('gpio -g write 21 1');
+  }
+  ,false);
+ 
+  document.getElementById('python_off').addEventListener('click' ,function() {
+    postPython('gpio -g write 21 0');
+  }
+  ,false);
+  document.getElementById('test').addEventListener('click' ,function() {
+    test('ls Movie_Data');
+  }
+  ,false);
+
+
+</script>
+</body>
+</html>
+
